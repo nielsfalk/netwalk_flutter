@@ -1,8 +1,7 @@
-# netwalk_flutter
+# Netwalk
 
-netwalk
+A simple cross platform puzzle game. Written to explore [flutter](http://flutter.io/) a little bit
 
-## Getting Started
+## Running on iOS and Android
 
-For help getting started with Flutter, view our online
-[documentation](http://flutter.io/).
+![iOS](iPhoneX.png) ![Android](PixelXL.png)
