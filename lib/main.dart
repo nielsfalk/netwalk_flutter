@@ -104,7 +104,7 @@ class BoardState extends State<Board> {
                   onChanged: (newValue) {
                     height(newValue);
                   },
-                  items: <int>[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                  items: <int>[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
                       .map((value) => new DropdownMenuItem<int>(
                           value: value, child: new Text(value.toString())))
                       .toList())
@@ -118,7 +118,7 @@ class BoardState extends State<Board> {
                   onChanged: (newValue) {
                     width(newValue);
                   },
-                  items: <int>[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                  items: <int>[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
                       .map((value) => new DropdownMenuItem<int>(
                           value: value, child: new Text(value.toString())))
                       .toList())
