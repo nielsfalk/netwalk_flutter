@@ -1,5 +1,11 @@
 class Cell {
-  bool on, left, right, bottom, top, server;
+  bool on,
+      left,
+      right,
+      bottom,
+      top,
+      server,
+      locked = false;
 
   Cell(
       {this.on = false,

@@ -36,6 +36,9 @@ class BoardState extends State<Board> {
   int dragCol;
 
   void dragRotationUpdate(int row, int col, double delta) {
+    if (field.cells[row][col].locked) {
+      return;
+    }
     dragRow = row;
     dragCol = col;
     setState(() {
@@ -44,6 +47,9 @@ class BoardState extends State<Board> {
   }
 
   void dragFinished() {
+    if (dragCol == null || dragRow == null) {
+      return;
+    }
     while (dragWidth < 0) {
       dragWidth += 360;
     }
@@ -163,16 +169,22 @@ class BoardState extends State<Board> {
       for (var col = 0; col < field.dimension.width; col++) {
         var cell = field.cells[row][col];
         var image = new Image.asset("assets/$cell.png");
+        var container = new Container(
+            color: cell.locked ? Colors.teal.shade100 : null,
+            child: image);
         var rotatedImage = new RotationTransition(
           turns: new AlwaysStoppedAnimation(currentRotation(row, col) / 360),
-          child: image,
+          child: container,
         );
         var it = new GestureDetector(
             onTap: () {
-              rotateRight(row, col);
+              setState(() {
+                cell.locked = !cell.locked;
+              });
             },
-            onVerticalDragUpdate: (it) =>
-                dragRotationUpdate(row, col, it.delta.dy),
+            onVerticalDragUpdate: (it) {
+              dragRotationUpdate(row, col, it.delta.dy);
+            },
             onHorizontalDragUpdate: (it) =>
                 dragRotationUpdate(row, col, it.delta.dx),
             onVerticalDragEnd: (it) => dragFinished(),
