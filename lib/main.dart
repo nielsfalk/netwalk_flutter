@@ -36,6 +36,9 @@ class BoardState extends State<Board> {
       field.rotateRight(row, col);
       field.startServer();
     });
+    if (field.solved){
+      wonMessage();
+    }
   }
 
   void height(int newVal) {
@@ -143,5 +146,30 @@ class BoardState extends State<Board> {
       rows.add(new TableRow(children: cells));
     }
     return rows;
+  }
+
+  wonMessage() {
+    final ThemeData theme = Theme.of(context);
+    final TextStyle dialogTextStyle =
+        theme.textTheme.subhead.copyWith(color: theme.textTheme.caption.color);
+
+    showDialog(
+        context: context,
+        child: new AlertDialog(
+            title: new Text('You have won', style: dialogTextStyle),
+            content: new Text('Play again?', style: dialogTextStyle),
+            actions: <Widget>[
+              new FlatButton(
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),
+              new FlatButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    newGame();
+                  })
+            ]));
   }
 }
