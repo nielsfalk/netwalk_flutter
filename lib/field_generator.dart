@@ -46,37 +46,21 @@ class Generator {
         schedule(neighbours, from);
         break;
       case 2:
-        if (random.nextBool()) {
-          //one exit
-          schedule([neighbours[random.nextInt(2)]], from);
-        } else {
-          //two exits
-          schedule(neighbours, from);
-        }
+        schedule(neighbours.sublist(random.nextInt(1)), from);
         break;
       case 3:
-        if (random.nextInt(100) == 1) {
-          schedule(neighbours, from);
-        } else {
-          neighbours.shuffle(random);
-          schedule(neighbours.sublist(random.nextInt(2), 2), from);
-        }
-        break;
       case 4: //the server
         if (random.nextInt(100) == 1) {
           schedule(neighbours, from);
         } else {
           neighbours.shuffle(random);
-          schedule(neighbours.sublist(random.nextInt(3), 3), from);
+          var maximumCount = neighbours.length - 1;
+          schedule(
+              neighbours.sublist(random.nextInt(maximumCount), maximumCount),
+              from);
         }
         break;
     }
-
-    //neighbours.forEach((it) {
-    //  if (it.cell == null) {
-    //    schedule(it, from);
-    //  }
-    //});
   }
 
   void schedule(List<ConstructionCell> cells, ConstructionCell parent) {
