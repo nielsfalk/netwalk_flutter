@@ -9,6 +9,7 @@ class Generator {
   List<List<ConstructionCell>> cells = [];
   Random random = new Random();
   Dimension dimension;
+  List<ConstructionCell> generateNext;
 
   Generator.generate(this.dimension) {
     for (var row = 0; row < dimension.height; row++) {
@@ -18,10 +19,12 @@ class Generator {
       }
       this.cells.add(cells);
     }
-    createCells(
+    generateNext = [];
+    createCell(
         from: cells[random.nextInt(dimension.height)]
             [random.nextInt(dimension.width)],
         server: true);
+    generatePendingCells();
     wireCells();
     field =
         new Field(cells.map((it) => it.map((it) => it.cell).toList()).toList());
@@ -29,31 +32,65 @@ class Generator {
     field.startServer();
   }
 
-  //for test only
-  Generator({this.dimension}) {
-    for (var row = 0; row < dimension.height; row++) {
-      List<ConstructionCell> cells = [];
-      for (var col = 0; col < dimension.width; col++) {
-        cells.add(new ConstructionCell(new Position(row: row, col: col)));
-      }
-      this.cells.add(cells);
-    }
-  }
-
-  void createCells(
-      {ConstructionCell from, bool server = false, ConstructionCell parent}) {
+  void createCell({ConstructionCell from, bool server = false}) {
+    generateNext.remove(from);
     from.cell = new Cell(server: server);
-    from.parent = parent;
     var neighbours = from.position
         .neighbours(dimension)
         .map((position) => getCell(position))
+        .where((it) => it.cell == null && !generateNext.contains(it))
         .toList();
-    neighbours.shuffle(random);
-    neighbours.forEach((it) {
-      if (it.cell == null) {
-        createCells(from: it, parent: from);
-      }
+
+    switch (neighbours.length) {
+      case 1:
+        schedule(neighbours, from);
+        break;
+      case 2:
+        if (random.nextBool()) {
+          //one exit
+          schedule([neighbours[random.nextInt(2)]], from);
+        } else {
+          //two exits
+          schedule(neighbours, from);
+        }
+        break;
+      case 3:
+        if (random.nextInt(100) == 1) {
+          schedule(neighbours, from);
+        } else {
+          neighbours.shuffle(random);
+          schedule(neighbours.sublist(random.nextInt(2), 2), from);
+        }
+        break;
+      case 4: //the server
+        if (random.nextInt(100) == 1) {
+          schedule(neighbours, from);
+        } else {
+          neighbours.shuffle(random);
+          schedule(neighbours.sublist(random.nextInt(3), 3), from);
+        }
+        break;
+    }
+
+    //neighbours.forEach((it) {
+    //  if (it.cell == null) {
+    //    schedule(it, from);
+    //  }
+    //});
+  }
+
+  void schedule(List<ConstructionCell> cells, ConstructionCell parent) {
+    cells.forEach((it) {
+      it.parent = parent;
+      generateNext.add(it);
     });
+  }
+
+  void generatePendingCells() {
+    while (generateNext.length > 0) {
+      var next = generateNext[random.nextInt(generateNext.length)];
+      createCell(from: next);
+    }
   }
 
   ConstructionCell getCell(Position position) =>
