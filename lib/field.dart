@@ -27,19 +27,23 @@ class Field {
         var position = new Position(row:row, col: col);
         var cell = getCell(position);
         if (cell.server){
-          connect(position, cell,null);
+          connect(position, cell,null,[]);
         }
       }
     }
   }
 
-  void connect(Position position, Cell cell, Cell before) {
+  void connect(Position position, Cell cell, Cell before, List<Cell> alreadyConnected) {
+    if (alreadyConnected.contains(cell)){
+      return;
+    }
     cell.on=true;
+    alreadyConnected.add(cell);
     if (cell.right){
       var neigbour = position.right(dimension);
       var neigbourCell = getCell(neigbour);
       if (neigbourCell.left && neigbourCell != before){
-        connect(neigbour, neigbourCell, cell);
+        connect(neigbour, neigbourCell, cell, alreadyConnected);
       }
     }
 
@@ -47,7 +51,7 @@ class Field {
       var neigbour = position.left(dimension);
       var neigbourCell = getCell(neigbour);
       if (neigbourCell.right && neigbourCell != before){
-        connect(neigbour, neigbourCell, cell);
+        connect(neigbour, neigbourCell, cell, alreadyConnected);
       }
     }
 
@@ -55,7 +59,7 @@ class Field {
       var neigbour = position.above(dimension);
       var neigbourCell = getCell(neigbour);
       if (neigbourCell.bottom && neigbourCell != before){
-        connect(neigbour, neigbourCell, cell);
+        connect(neigbour, neigbourCell, cell, alreadyConnected);
       }
     }
 
@@ -63,7 +67,7 @@ class Field {
       var neigbour = position.below(dimension);
       var neigbourCell = getCell(neigbour);
       if (neigbourCell.top && neigbourCell != before){
-        connect(neigbour, neigbourCell, cell);
+        connect(neigbour, neigbourCell, cell, alreadyConnected);
       }
     }
   }
