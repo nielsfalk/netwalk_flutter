@@ -135,10 +135,6 @@ class BoardState extends State<Board> {
         var it = new GestureDetector(
             onTap: () {
               rotateRight(row, col);
-              print("foo $row $col");
-            },
-            onHorizontalDragUpdate: (details) {
-              print('dragUpdate ${details.primaryDelta}');
             },
             child: image);
         cells.add(it);
