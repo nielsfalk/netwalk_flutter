@@ -15,7 +15,7 @@ class NetwalkApp extends StatelessWidget {
         theme: new ThemeData(
           primarySwatch: Colors.teal,
         ),
-        home: new Board(title: 'Netwal'),
+        home: new Board(title: 'Netwalk'),
       );
 }
 
