@@ -34,9 +34,6 @@ class Position {
   int get hashCode =>
       row.hashCode ^
       col.hashCode;
-
-
-
 }
 
 class Dimension {

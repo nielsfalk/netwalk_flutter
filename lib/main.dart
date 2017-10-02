@@ -31,12 +31,43 @@ class BoardState extends State<Board> {
   Field field =
       new Generator.generate(new Dimension(width: 4, height: 5)).field;
 
+  double dragWidth = 0.0;
+  int dragRow;
+  int dragCol;
+
+  void dragRotationUpdate(int row, int col, double delta) {
+    dragRow = row;
+    dragCol = col;
+    setState(() {
+      dragWidth += delta;
+    });
+  }
+
+  void dragFinished() {
+    while (dragWidth < 0) {
+      dragWidth += 360;
+    }
+    var spins = (dragWidth / 90).round() % 4;
+    setState(() {
+      for (var i = 0; i < spins; ++i) {
+        rotateRight(dragRow, dragCol);
+      }
+      dragRow = null;
+      dragCol = null;
+      dragWidth = 0.0;
+    });
+  }
+
+  double currentRotation(int row, int col) {
+    return (row == dragRow && col == dragCol) ? dragWidth : 0.0;
+  }
+
   void rotateRight(int row, int col) {
     setState(() {
       field.rotateRight(row, col);
       field.startServer();
     });
-    if (field.solved){
+    if (field.solved) {
       wonMessage();
     }
   }
@@ -132,11 +163,21 @@ class BoardState extends State<Board> {
       for (var col = 0; col < field.dimension.width; col++) {
         var cell = field.cells[row][col];
         var image = new Image.asset("assets/$cell.png");
+        var rotatedImage = new RotationTransition(
+          turns: new AlwaysStoppedAnimation(currentRotation(row, col) / 360),
+          child: image,
+        );
         var it = new GestureDetector(
             onTap: () {
               rotateRight(row, col);
             },
-            child: image);
+            onVerticalDragUpdate: (it) =>
+                dragRotationUpdate(row, col, it.delta.dy),
+            onHorizontalDragUpdate: (it) =>
+                dragRotationUpdate(row, col, it.delta.dx),
+            onVerticalDragEnd: (it) => dragFinished(),
+            onHorizontalDragEnd: (it) => dragFinished(),
+            child: rotatedImage);
         cells.add(it);
       }
       rows.add(new TableRow(children: cells));
