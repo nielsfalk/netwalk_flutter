@@ -25,9 +25,7 @@ class Board extends StatefulWidget {
   BoardState createState() => new BoardState();
 }
 
-
 class BoardState extends State<Board> {
-
   GameControl game;
   DragRotation dragRotation;
 
@@ -35,8 +33,6 @@ class BoardState extends State<Board> {
     game = new GameControl(this);
     dragRotation = new DragRotation(this, game);
   }
-
-
 
   @override
   Widget build(BuildContext context) => new Scaffold(
@@ -103,7 +99,11 @@ class BoardState extends State<Board> {
                 new DropdownMenuItem<int>(
                     value: value, child: new Text(value.toString())))
                     .toList())
-          ]))
+          ])),
+      new ListTile(
+        title: new Text("${game.field.rotationsMade} / ${game.field
+            .shuffleRotations} moves"),
+      )
     ]);
     return new Drawer(child: new ListView(children: items));
   }
@@ -152,7 +152,11 @@ class BoardState extends State<Board> {
         context: context,
         child: new AlertDialog(
             title: new Text('You have won!', style: dialogTextStyle),
-            content: new Text('Play again?', style: dialogTextStyle),
+            content: new Text(
+                'It took ${game.field.rotationsMade} moves. '
+                    'Optimal would be ${game.field.shuffleRotations}'
+                    ' moves. Play again?',
+                style: dialogTextStyle),
             actions: <Widget>[
               new FlatButton(
                   child: const Text('Cancel'),

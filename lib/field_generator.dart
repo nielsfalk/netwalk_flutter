@@ -27,9 +27,9 @@ class Generator {
     generatePendingCells();
     wireCells();
     field =
-        new Field(cells.map((it) => it.map((it) => it.cell).toList()).toList());
-    field.shuffle(random);
-    field.startServer();
+    new Field(cells.map((it) => it.map((it) => it.cell).toList()).toList())
+      ..shuffle(random)
+      ..startServer();
   }
 
   void createCell({ConstructionCell from, bool server = false}) {

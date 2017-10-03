@@ -1,5 +1,6 @@
 import 'game_control.dart';
 import 'main.dart';
+import 'field.dart';
 
 class DragRotation {
   BoardState boardState;
@@ -28,11 +29,9 @@ class DragRotation {
     while (dragWidth < 0) {
       dragWidth += 360;
     }
-    var spins = (dragWidth / 90).round() % 4;
+    var rotation = Rotation.values[(dragWidth / 90).round() % 4];
     boardState.setState(() {
-      for (var i = 0; i < spins; ++i) {
-        gameControl.rotateCell(dragRow, dragCol);
-      }
+      gameControl.rotateCell(dragRow, dragCol, rotation);
       dragRow = null;
       dragCol = null;
       dragWidth = 0.0;

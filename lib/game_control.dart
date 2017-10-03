@@ -10,9 +10,9 @@ class GameControl {
 
   GameControl(this.boardState);
 
-  void rotateCell(int row, int col) {
+  void rotateCell(int row, int col, Rotation rotation) {
     boardState.setState(() {
-      field.rotateRight(row, col);
+      field.rotate(row, col, rotation);
       field.startServer();
     });
     if (field.solved) {

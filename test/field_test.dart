@@ -39,8 +39,15 @@ void main() {
     solvedFiled.startServer();
     expect(solvedFiled.solved, equals(true));
 
-    solvedFiled.rotateRight(1, 1);
+    solvedFiled.rotate(1, 1, Rotation.right);
     solvedFiled.startServer();
     expect(solvedFiled.solved, equals(false));
+  });
+
+  test("count moves", () {
+    expect(moveCount(Rotation.none), equals(0));
+    expect(moveCount(Rotation.left), equals(1));
+    expect(moveCount(Rotation.right), equals(1));
+    expect(moveCount(Rotation.half), equals(2));
   });
 }
