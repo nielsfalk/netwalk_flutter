@@ -129,48 +129,62 @@ class BoardState extends State<Board> {
         ),
       ));
 
-  Drawer drawer(BuildContext context) => new Drawer(
-          child: new ListView(children: <Widget>[
-        new DrawerHeader(
-            child: new Text("Netwalk by Niels Falk - nielsfalk.de")),
-        new ListTile(
-            leading: new Icon(Icons.link), title: new Text("nielsfalk.de")),
-        new ListTile(
-            leading: new Icon(Icons.refresh),
-            title: new Text("New Game"),
-            onTap: () {
-              Navigator.of(context).pop();
-              newGame();
-            }),
-        new ListTile(
-            leading: new Icon(Icons.more_horiz),
-            title: new Row(children: <Widget>[
-              new Text("height: "),
-              new DropdownButton<int>(
-                  value: field.dimension.height,
-                  onChanged: (newValue) {
-                    height(newValue);
-                  },
-                  items: <int>[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-                      .map((value) => new DropdownMenuItem<int>(
-                          value: value, child: new Text(value.toString())))
-                      .toList())
-            ])),
-        new ListTile(
-            leading: new Icon(Icons.more_vert),
-            title: new Row(children: <Widget>[
-              new Text("width: "),
-              new DropdownButton<int>(
-                  value: field.dimension.width,
-                  onChanged: (newValue) {
-                    width(newValue);
-                  },
-                  items: <int>[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-                      .map((value) => new DropdownMenuItem<int>(
-                          value: value, child: new Text(value.toString())))
-                      .toList())
-            ])),
-      ]));
+  Drawer drawer(BuildContext context) {
+    List<Widget> items = [
+      new DrawerHeader(child: new Text("Netwalk by Niels Falk - nielsfalk.de")),
+      new ListTile(
+          leading: new Icon(Icons.link), title: new Text("nielsfalk.de")),
+      new ListTile(
+          leading: new Icon(Icons.refresh),
+          title: new Text("New Game"),
+          onTap: () {
+            Navigator.of(context).pop();
+            newGame();
+          })
+    ];
+    if (field.allCells().any((it) => it.locked)) {
+      items.add(new ListTile(
+          leading: new Icon(Icons.lock_open),
+          title: new Text("Unlock all"),
+          onTap: () {
+            Navigator.of(context).pop();
+            setState(() => field.allCells().forEach((it) => it.locked = false));
+          }));
+    }
+    items.addAll([
+      new ListTile(
+          leading: new Icon(Icons.more_horiz),
+          title: new Row(children: <Widget>[
+            new Text("height: "),
+            new DropdownButton<int>(
+                value: field.dimension.height,
+                onChanged: (newValue) {
+                  height(newValue);
+                },
+                items: <int>[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                    .map((value) =>
+                new DropdownMenuItem<int>(
+                    value: value, child: new Text(value.toString())))
+                    .toList())
+          ])),
+      new ListTile(
+          leading: new Icon(Icons.more_vert),
+          title: new Row(children: <Widget>[
+            new Text("width: "),
+            new DropdownButton<int>(
+                value: field.dimension.width,
+                onChanged: (newValue) {
+                  width(newValue);
+                },
+                items: <int>[3, 4, 5, 6, 7, 8]
+                    .map((value) =>
+                new DropdownMenuItem<int>(
+                    value: value, child: new Text(value.toString())))
+                    .toList())
+          ]))
+    ]);
+    return new Drawer(child: new ListView(children: items));
+  }
 
   List<TableRow> createBoard() {
     List<TableRow> rows = [];
