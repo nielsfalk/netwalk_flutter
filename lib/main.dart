@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'field.dart';
-import 'field_generator.dart';
-import 'position.dart';
+import 'game_control.dart';
+import 'drag_rotation.dart';
 
 void main() {
   runApp(new NetwalkApp());
@@ -27,94 +25,18 @@ class Board extends StatefulWidget {
   BoardState createState() => new BoardState();
 }
 
-class DragRotation {
-  BoardState boardState;
-  double dragWidth = 0.0;
-  int dragRow;
-  int dragCol;
-
-  DragRotation(this.boardState);
-
-  void update(int row, int col, double delta) {
-    if (boardState.field.cells[row][col].locked) {
-      return;
-    }
-    dragRow = row;
-    dragCol = col;
-    boardState.setState(() {
-      dragWidth += delta;
-    });
-  }
-
-  void finished() {
-    if (dragCol == null || dragRow == null) {
-      return;
-    }
-    while (dragWidth < 0) {
-      dragWidth += 360;
-    }
-    var spins = (dragWidth / 90).round() % 4;
-    boardState.setState(() {
-      for (var i = 0; i < spins; ++i) {
-        boardState.rotateCell(dragRow, dragCol);
-      }
-      dragRow = null;
-      dragCol = null;
-      dragWidth = 0.0;
-    });
-  }
-
-  double current(int row, int col) {
-    return (row == dragRow && col == dragCol) ? dragWidth : 0.0;
-  }
-}
 
 class BoardState extends State<Board> {
-  Field field =
-      new Generator.generate(new Dimension(width: 4, height: 5)).field;
+
+  GameControl game;
   DragRotation dragRotation;
 
   BoardState() {
-    dragRotation = new DragRotation(this);
+    game = new GameControl(this);
+    dragRotation = new DragRotation(this, game);
   }
 
-  void rotateCell(int row, int col) {
-    setState(() {
-      field.rotateRight(row, col);
-      field.startServer();
-    });
-    if (field.solved) {
-      wonMessage();
-    }
-  }
 
-  void height(int newVal) {
-    if (newVal != null) {
-      setState(() {
-        field = new Generator.generate(
-                new Dimension(width: field.dimension.width, height: newVal))
-            .field;
-      });
-    }
-  }
-
-  void width(int newVal) {
-    if (newVal != null) {
-      setState(() {
-        field = new Generator.generate(
-                new Dimension(width: newVal, height: field.dimension.height))
-            .field;
-      });
-    }
-  }
-
-  void newGame() {
-    setState(() {
-      field = new Generator.generate(new Dimension(
-              height: field.dimension.height, width: field.dimension.width))
-          .field;
-    });
-  }
 
   @override
   Widget build(BuildContext context) => new Scaffold(
@@ -139,16 +61,16 @@ class BoardState extends State<Board> {
           title: new Text("New Game"),
           onTap: () {
             Navigator.of(context).pop();
-            newGame();
+            game.newGame();
           })
     ];
-    if (field.allCells().any((it) => it.locked)) {
+    if (game.anyCellLocked()) {
       items.add(new ListTile(
           leading: new Icon(Icons.lock_open),
           title: new Text("Unlock all"),
           onTap: () {
             Navigator.of(context).pop();
-            setState(() => field.allCells().forEach((it) => it.locked = false));
+            setState(() => game.unlockAllCells());
           }));
     }
     items.addAll([
@@ -157,9 +79,9 @@ class BoardState extends State<Board> {
           title: new Row(children: <Widget>[
             new Text("height: "),
             new DropdownButton<int>(
-                value: field.dimension.height,
+                value: game.field.dimension.height,
                 onChanged: (newValue) {
-                  height(newValue);
+                  game.height(newValue);
                 },
                 items: <int>[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
                     .map((value) =>
@@ -172,9 +94,9 @@ class BoardState extends State<Board> {
           title: new Row(children: <Widget>[
             new Text("width: "),
             new DropdownButton<int>(
-                value: field.dimension.width,
+                value: game.field.dimension.width,
                 onChanged: (newValue) {
-                  width(newValue);
+                  game.width(newValue);
                 },
                 items: <int>[3, 4, 5, 6, 7, 8]
                     .map((value) =>
@@ -188,10 +110,10 @@ class BoardState extends State<Board> {
 
   List<TableRow> createBoard() {
     List<TableRow> rows = [];
-    for (var row = 0; row < field.dimension.height; row++) {
+    for (var row = 0; row < game.field.dimension.height; row++) {
       List<Widget> cells = [];
-      for (var col = 0; col < field.dimension.width; col++) {
-        var cell = field.cells[row][col];
+      for (var col = 0; col < game.field.dimension.width; col++) {
+        var cell = game.field.cells[row][col];
         var image = new Image.asset("assets/$cell.png");
         var container = new Container(
             color: cell.locked ? Colors.teal.shade100 : null, child: image);
@@ -229,7 +151,7 @@ class BoardState extends State<Board> {
     showDialog(
         context: context,
         child: new AlertDialog(
-            title: new Text('You have won', style: dialogTextStyle),
+            title: new Text('You have won!', style: dialogTextStyle),
             content: new Text('Play again?', style: dialogTextStyle),
             actions: <Widget>[
               new FlatButton(
@@ -241,7 +163,7 @@ class BoardState extends State<Board> {
                   child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop();
-                    newGame();
+                    game.newGame();
                   })
             ]));
   }
